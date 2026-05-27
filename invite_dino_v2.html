@@ -545,308 +545,190 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     canvas.height = 220;
     var ctx = canvas.getContext('2d');
     var H = 220;
-    var GY = 178; // ground y (pixel where ground line sits)
+    var GY = 160; // ground y
 
-    // ─── SPRITE SHEET ────────────────────────────────────────────
-    // Chrome dino official sprite sheet (1x, 600×102 px)
-    // Hosted via public CDN
-    var SPRITE_URL = 'https://i.imgur.com/7BuRkS9.png';
-    var sprite = new Image();
-    sprite.crossOrigin = 'anonymous';
-    var spriteReady = false;
-    sprite.onload = function() { spriteReady = true; };
-    sprite.onerror = function() { spriteReady = false; }; // fall back to canvas drawing
-    sprite.src = SPRITE_URL;
-
-    // ─── SPRITE COORDINATES (1x sheet) ───────────────────────────
-    // Dino running frames (2 frames, legs alternating)
-    var SP = {
-      // Dino: x, y, w, h in sprite sheet
-      DINO_RUN1:   { x: 1338, y: 2,   w: 88, h: 94 },  // run frame 1
-      DINO_RUN2:   { x: 1426, y: 2,   w: 88, h: 94 },  // run frame 2
-      DINO_JUMP:   { x: 1250, y: 2,   w: 88, h: 94 },  // jump (same pose)
-      DINO_DEAD:   { x: 1514, y: 2,   w: 88, h: 94 },  // dead pose
-
-      // Small cactus (single): x=228, y=2, w=34, h=70  (varies by count 1-3)
-      CACTUS_S1:   { x: 228,  y: 2,   w: 34, h: 70 },
-      CACTUS_S2:   { x: 262,  y: 2,   w: 67, h: 70 },  // 2 grouped
-      CACTUS_S3:   { x: 329,  y: 2,   w: 100,h: 70 },  // 3 grouped
-
-      // Large cactus: x=332,y=2 ...
-      CACTUS_L1:   { x: 332,  y: 2,   w: 50, h: 98 },
-      CACTUS_L2:   { x: 382,  y: 2,   w: 98, h: 98 },
-
-      // Pterodactyl (bird): 2 frames
-      PTERO1:      { x: 260,  y: 2,   w: 92, h: 60 },
-      PTERO2:      { x: 352,  y: 2,   w: 92, h: 60 },
-
-      // Ground strip: x=2, y=104, w=2400, h=24
-      GROUND:      { x: 2,    y: 104, w: 2400, h: 24 },
-
-      // Cloud: x=166, y=2, w=92, h=28
-      CLOUD:       { x: 166,  y: 2,   w: 92, h: 28 }
-    };
-
-    // Canvas drawing fallback functions (if sprite fails to load)
-    function fallbackDino(x, y, frame, jumping) {
-      var GOLD = '#b8936a';
-      ctx.fillStyle = GOLD;
-      // body
-      ctx.fillRect(x+10, y+12, 22, 24);
-      // head
-      ctx.fillRect(x+18, y, 18, 16);
-      // eye
-      ctx.fillStyle = '#0a0a0a';
-      ctx.fillRect(x+28, y+4, 4, 4);
-      // mouth
-      ctx.fillStyle = GOLD;
-      ctx.fillRect(x+32, y+11, 6, 2);
-      // tail
-      ctx.fillRect(x+2, y+20, 12, 8);
-      ctx.fillRect(x+4, y+26, 8, 6);
-      // legs
-      var f = jumping ? 0 : frame % 2;
-      if (f === 0) {
-        ctx.fillRect(x+14, y+36, 8, 14);
-        ctx.fillRect(x+24, y+36, 8, 10);
-      } else {
-        ctx.fillRect(x+14, y+36, 8, 10);
-        ctx.fillRect(x+24, y+36, 8, 14);
-      }
-      // arm
-      ctx.fillRect(x+28, y+16, 10, 5);
-    }
-
-    function fallbackCactus(x, y, type) {
-      ctx.fillStyle = '#555';
-      var h = (type === 'L') ? 64 : 50;
-      var w = (type === 'L') ? 28 : 20;
-      ctx.fillRect(x, GY - h, w, h);
-      // arms
-      ctx.fillRect(x-10, GY-h+14, 10, 6);
-      ctx.fillRect(x-10, GY-h+8,  5, 8);
-      ctx.fillRect(x+w,  GY-h+18, 10, 6);
-      ctx.fillRect(x+w+5,GY-h+12, 5, 8);
-    }
-
-    function fallbackBird(x, y, frame) {
-      ctx.fillStyle = '#888';
-      // body
-      ctx.fillRect(x+16, y+8, 26, 12);
-      ctx.fillRect(x+38, y+4, 12, 10);
-      ctx.fillStyle = '#aaa';
-      if (frame % 2 === 0) {
-        ctx.fillRect(x+16, y, 20, 8);
-      } else {
-        ctx.fillRect(x+16, y+18, 20, 8);
-      }
-      // beak
-      ctx.fillStyle = '#888';
-      ctx.fillRect(x+48, y+8, 8, 4);
-    }
-
-    // ─── DRAW FUNCTIONS ──────────────────────────────────────────
-    var DINO_W = 44, DINO_H = 47; // display size for dino
-
-    function drawDino(dx, dy, frame, jumping) {
-      if (!spriteReady) { fallbackDino(dx, dy, frame, jumping); return; }
-      var src = jumping ? SP.DINO_JUMP : (frame % 2 === 0 ? SP.DINO_RUN1 : SP.DINO_RUN2);
-      // Invert colors by tinting: draw dark sprite on light bg
-      ctx.save();
-      ctx.filter = 'invert(1)'; // make white dino on dark bg
-      ctx.drawImage(sprite, src.x, src.y, src.w, src.h, dx, dy, DINO_W, DINO_H);
-      ctx.restore();
-    }
-
-    var groundOffset = 0;
-    function drawGround() {
-      if (!spriteReady) {
-        ctx.strokeStyle = '#444';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(0, GY);
-        ctx.lineTo(W, GY);
-        ctx.stroke();
-        ctx.strokeStyle = '#333';
-        ctx.lineWidth = 1;
-        for (var dx = 0; dx < W; dx += 24) {
-          ctx.beginPath();
-          ctx.moveTo((dx + groundOffset) % W, GY + 4);
-          ctx.lineTo((dx + groundOffset) % W + 10, GY + 4);
-          ctx.stroke();
-        }
-        return;
-      }
-      // Tile the ground strip
-      var gh = 12, gy2 = GY;
-      var tiles = Math.ceil(W / 600) + 2;
-      ctx.save();
-      ctx.filter = 'invert(1)';
-      for (var t = 0; t < tiles; t++) {
-        var tx = (t * 600) - (groundOffset % 600);
-        ctx.drawImage(sprite, SP.GROUND.x, SP.GROUND.y, 600, SP.GROUND.h, tx, gy2, 600, gh);
-      }
-      ctx.restore();
-    }
-
-    // Clouds
-    var clouds = [
-      { x: W * 0.3, y: GY - 100 },
-      { x: W * 0.7, y: GY - 120 },
-      { x: W * 1.1, y: GY - 90 }
-    ];
-    function drawClouds() {
-      clouds.forEach(function(c) {
-        if (!spriteReady) {
-          ctx.fillStyle = 'rgba(80,80,80,0.3)';
-          ctx.beginPath();
-          ctx.ellipse(c.x + 40, c.y + 14, 46, 14, 0, 0, Math.PI*2);
-          ctx.fill();
-          return;
-        }
-        ctx.save();
-        ctx.filter = 'invert(1) opacity(0.35)';
-        ctx.drawImage(sprite, SP.CLOUD.x, SP.CLOUD.y, SP.CLOUD.w, SP.CLOUD.h, c.x, c.y, 46, 14);
-        ctx.restore();
-      });
-    }
-
-    function drawCactus(c) {
-      if (!spriteReady) { fallbackCactus(c.x, 0, c.big ? 'L' : 'S'); return; }
-      var src = c.big ? SP.CACTUS_L1 : (c.multi === 3 ? SP.CACTUS_S3 : c.multi === 2 ? SP.CACTUS_S2 : SP.CACTUS_S1);
-      var cH = c.big ? 50 : 36;
-      var cW = c.big ? 26 : (c.multi === 3 ? 52 : c.multi === 2 ? 36 : 18);
-      var cY = GY - cH;
-      ctx.save();
-      ctx.filter = 'invert(1)';
-      ctx.drawImage(sprite, src.x, src.y, src.w, src.h, c.x, cY, cW, cH);
-      ctx.restore();
-      // Store hitbox
-      c.hw = cW; c.hh = cH; c.hy = cY;
-    }
-
-    function drawBird(bird) {
-      if (bird.hit) return;
-      var x = bird.x, y = bird.y;
-      // Draw pterodactyl from sprite
-      var bW = 46, bH = 30;
-      if (spriteReady) {
-        var src = bird.frame % 2 === 0 ? SP.PTERO1 : SP.PTERO2;
-        ctx.save();
-        ctx.filter = 'invert(1)';
-        ctx.drawImage(sprite, src.x, src.y, src.w, src.h, x, y, bW, bH);
-        ctx.restore();
-      } else {
-        fallbackBird(x, y, bird.frame);
-        bW = 54; bH = 28;
-      }
-
-      // Banner on the bird
-      var NEON = '#00ff88';
-      var GOLD = '#b8936a';
-      var bx = x - 52, by = y + 2;
-      ctx.fillStyle = 'rgba(13,17,23,0.92)';
-      ctx.strokeStyle = GOLD;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(bx, by, 48, 20, 3);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = NEON;
-      ctx.font = 'bold 9px "DM Mono", monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(bird.label, bx + 24, by + 10);
-      // String from banner to bird
-      ctx.strokeStyle = 'rgba(184,147,106,0.5)';
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(bx + 48, by + 10);
-      ctx.lineTo(x, y + bH/2);
-      ctx.stroke();
-      // Store hitbox on bird
-      bird.bx = bx; bird.bW = bW + 52; bird.bH = bH;
-    }
-
-    // ─── GAME STATE ───────────────────────────────────────────────
+    // Track which question is currently active (must be hit before moving on)
     var currentQuestionIdx = 0;
     var allDone = false;
+    var gameOver = false;
     var gamePaused = false;
-    var cactusHitCount = 0; // just count, no game-over
 
+    // Dino state
     var dino = {
-      x: 60, y: GY - DINO_H,
-      w: DINO_W, h: DINO_H,
-      vy: 0, jumping: false,
-      frame: 0, frameTimer: 0,
-      flashTimer: 0 // flash on cactus hit
+      x: 50,
+      y: GY,
+      w: 32,
+      h: 42,
+      vy: 0,
+      jumping: false,
+      frame: 0,
+      frameTimer: 0
     };
 
-    // Cactuses: random variety
-    function makeCactus(startX) {
-      var big = Math.random() < 0.35;
-      var multi = big ? 1 : (Math.random() < 0.4 ? (Math.random() < 0.5 ? 2 : 3) : 1);
-      return {
-        x: startX,
-        big: big,
-        multi: multi,
-        hw: 0, hh: 0, hy: 0 // set by drawCactus
-      };
+    // Ground bumps
+    var bumps = [];
+    for (var bi = 0; bi < 8; bi++) {
+      bumps.push({x: Math.random() * W * 2, h: 3 + Math.random() * 5, w: 8 + Math.random() * 16});
     }
-    var cacti = [makeCactus(W + 120), makeCactus(W + 380)];
 
-    // Clouds
-    var cloudSpeed = 0.5;
+    // Cactuses (permanent, cycle around)
+    var cacti = [{x: W + 80, w: 14, h: 36}, {x: W + 320, w: 10, h: 28}];
 
-    // Active question bird — persists until hit
+    // Single active bird - carries the current question banner
+    // It respawns from the right every time it passes off-screen without being hit
+    var activeBird = spawnBird(currentQuestionIdx);
+
     function spawnBird(qi) {
       return {
-        x: W + 130,
-        y: GY - 90 - Math.random() * 28,
+        x: W + 120,
+        y: GY - 65 - Math.random() * 30,
+        w: 52,
+        h: 22,
         label: QUESTIONS[qi].label,
         qi: qi,
         hit: false,
-        frame: 0, frameTimer: 0,
-        bx: 0, bW: 0, bH: 0
+        frame: 0,
+        frameTimer: 0
       };
     }
-    var activeBird = spawnBird(0);
 
-    var speed = 5;
-    var gravity = 0.65;
-    var jumpForce = -13;
+    var speed = 2.8;
+    var gravity = 0.55;
+    var jumpForce = -11;
 
     function jump() {
-      if (gamePaused) return;
+      if (gamePaused || gameOver) return;
       if (!dino.jumping) {
         dino.vy = jumpForce;
         dino.jumping = true;
       }
     }
+
     canvas.addEventListener('click', function() { jump(); });
     canvas.addEventListener('touchend', function(e) { e.preventDefault(); jump(); }, {passive: false});
-    document.addEventListener('keydown', function(e) {
-      if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
-    });
+    document.addEventListener('keydown', function(e) { if (e.code === 'Space') { e.preventDefault(); jump(); } });
 
-    // Popup close handler
-    document.getElementById('popup-close').addEventListener('click', function() {
-      document.getElementById('popup-overlay').classList.remove('show');
-      gamePaused = false;
-      if (currentQuestionIdx >= QUESTIONS.length) {
-        allDone = true;
+    function drawDino(x, y, frame) {
+      var GOLD = '#b8936a';
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(x + 8, y + 8, 18, 20);
+      ctx.fillRect(x + 14, y, 14, 14);
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(x + 22, y + 3, 3, 3);
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(x + 24, y + 9, 5, 2);
+      ctx.fillRect(x, y + 18, 10, 6);
+      ctx.fillRect(x + 2, y + 22, 6, 5);
+      if (frame % 2 === 0) {
+        ctx.fillRect(x + 10, y + 28, 6, 12);
+        ctx.fillRect(x + 20, y + 28, 6, 8);
       } else {
-        activeBird = spawnBird(currentQuestionIdx);
+        ctx.fillRect(x + 10, y + 28, 6, 8);
+        ctx.fillRect(x + 20, y + 28, 6, 12);
       }
-    });
+      ctx.fillRect(x + 22, y + 12, 8, 4);
+    }
+
+    function drawBird(bird) {
+      if (bird.hit) return;
+      var x = bird.x, y = bird.y;
+      var NEON = '#00ff88';
+      var GOLD = '#b8936a';
+      var flapUp = bird.frame % 2 === 0;
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(x + 14, y + 6, 22, 10);
+      ctx.fillRect(x + 32, y + 3, 10, 8);
+      ctx.fillStyle = '#e8a060';
+      ctx.fillRect(x + 40, y + 6, 6, 3);
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(x + 36, y + 4, 2, 2);
+      ctx.fillStyle = GOLD;
+      ctx.fillRect(x + 8, y + 7, 8, 4);
+      ctx.fillRect(x + 4, y + 9, 6, 3);
+      ctx.fillStyle = '#d4a870';
+      if (flapUp) {
+        ctx.fillRect(x + 14, y, 16, 6);
+        ctx.fillRect(x + 10, y - 3, 12, 4);
+      } else {
+        ctx.fillRect(x + 14, y + 14, 16, 6);
+        ctx.fillRect(x + 10, y + 18, 12, 4);
+      }
+      var bx = x - 40, by = y + 2;
+      ctx.fillStyle = 'rgba(13,17,23,0.92)';
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, 42, 18, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = NEON;
+      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(bird.label, bx + 21, by + 9);
+      ctx.strokeStyle = 'rgba(184,147,106,0.4)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(bx + 42, by + 9);
+      ctx.lineTo(x + 14, y + 8);
+      ctx.stroke();
+    }
+
+    // Draw a subtle "missed - coming again!" hint arrow on the right edge
+    function drawRespawnHint() {
+      if (allDone || gamePaused) return;
+      var NEON = '#00ff88';
+      ctx.fillStyle = 'rgba(0,255,136,0.25)';
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('► ' + QUESTIONS[currentQuestionIdx].label + ' coming...', W - 8, 30);
+    }
+
+    function drawCactus(c) {
+      var x = c.x, h = c.h, w = c.w;
+      ctx.fillStyle = '#2a5a2a';
+      ctx.fillRect(x, GY - h, w, h);
+      ctx.fillRect(x - 8, GY - h + 10, 8, 5);
+      ctx.fillRect(x - 8, GY - h + 4, 4, 8);
+      ctx.fillRect(x + w, GY - h + 14, 8, 5);
+      ctx.fillRect(x + w + 4, GY - h + 8, 4, 8);
+    }
+
+    function drawGround() {
+      ctx.strokeStyle = '#2a2a2a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, GY + dino.h);
+      ctx.lineTo(W, GY + dino.h);
+      ctx.stroke();
+      ctx.strokeStyle = '#1a1a1a';
+      ctx.lineWidth = 1;
+      for (var dx = 0; dx < W; dx += 20) {
+        ctx.beginPath();
+        ctx.moveTo(dx, GY + dino.h + 4);
+        ctx.lineTo(dx + 10, GY + dino.h + 4);
+        ctx.stroke();
+      }
+    }
+
+    function drawScore() {
+      ctx.fillStyle = '#2a2a2a';
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillText('DISCOVERED ' + currentQuestionIdx + '/' + QUESTIONS.length, W - 10, 10);
+    }
 
     function showPopup(qi) {
       gamePaused = true;
       var q = QUESTIONS[qi];
       var overlay = document.getElementById('popup-overlay');
-      document.getElementById('popup-tag').textContent = q.tag;
-      document.getElementById('popup-title').textContent = q.title;
+      var tagEl = document.getElementById('popup-tag');
+      var titleEl = document.getElementById('popup-title');
       var bodyEl = document.getElementById('popup-body');
+      tagEl.textContent = q.tag;
+      titleEl.textContent = q.title;
       if (q.isPhoto) {
         bodyEl.innerHTML = '<div class="popup-who-photos">' +
           '<div class="popup-who-photo"><img src="' + MSRC + '"><div class="popup-who-label">Dr. Madhura . BDS</div></div>' +
@@ -861,148 +743,95 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       overlay.classList.add('show');
     }
 
-    // ─── MAIN LOOP ────────────────────────────────────────────────
+    document.getElementById('popup-close').addEventListener('click', function() {
+      document.getElementById('popup-overlay').classList.remove('show');
+      gamePaused = false;
+      // currentQuestionIdx was already incremented on hit; spawn next bird or mark done
+      if (currentQuestionIdx >= QUESTIONS.length) {
+        allDone = true;
+      } else {
+        activeBird = spawnBird(currentQuestionIdx);
+      }
+    });
+
     function loop() {
       ctx.clearRect(0, 0, W, H);
 
-      if (!gamePaused) {
-        speed = Math.min(10, 5 + currentQuestionIdx * 0.3);
-
-        // Move ground offset for scroll effect
-        groundOffset = (groundOffset + speed) % 600;
-
-        // Move clouds
-        clouds.forEach(function(c) {
-          c.x -= cloudSpeed;
-          if (c.x + 46 < 0) c.x = W + 20;
-        });
-
-        // Dino physics
+      if (!gamePaused && !gameOver) {
+        // Update dino
         dino.vy += gravity;
         dino.y += dino.vy;
-        var ground = GY - DINO_H;
-        if (dino.y >= ground) {
-          dino.y = ground;
+        if (dino.y >= GY) {
+          dino.y = GY;
           dino.vy = 0;
           dino.jumping = false;
         }
-        if (dino.y < 0) { dino.y = 0; dino.vy = 0; }
-
-        // Dino animation
         dino.frameTimer++;
-        if (dino.frameTimer > 7) { dino.frame++; dino.frameTimer = 0; }
-        if (dino.flashTimer > 0) dino.flashTimer--;
-
-        // Move cacti
-        cacti.forEach(function(c) {
-          c.x -= speed;
-          if (c.x + (c.big ? 26 : 52) < 0) {
-            var prev = cacti.reduce(function(mx,cc){ return Math.max(mx, cc.x); }, 0);
-            c.x = Math.max(W + 80, prev + 180 + Math.random() * 200);
-            c.big = Math.random() < 0.35;
-            c.multi = c.big ? 1 : (Math.random() < 0.4 ? (Math.random() < 0.5 ? 2 : 3) : 1);
-          }
-
-          // Cactus collision (no game over — just count)
-          if (c.hh > 0) {
-            var cPad = 6;
-            var dinoRight = dino.x + dino.w - cPad;
-            var dinoLeft  = dino.x + cPad;
-            var dinoBot   = dino.y + dino.h - cPad;
-            var dinoTop   = dino.y + cPad;
-            var cLeft  = c.x + cPad;
-            var cRight = c.x + c.hw - cPad;
-            var cTop   = c.hy + cPad;
-            var cBot   = c.hy + c.hh - cPad;
-            if (dinoRight > cLeft && dinoLeft < cRight && dinoBot > cTop && dinoTop < cBot) {
-              if (dino.flashTimer === 0) { // debounce
-                cactusHitCount++;
-                dino.flashTimer = 30;
-                // Slight bounce-back
-                dino.vy = -6;
-                dino.jumping = true;
-                c.x -= 20; // push cactus away
-              }
-            }
-          }
-        });
+        if (dino.frameTimer > 8) { dino.frame++; dino.frameTimer = 0; }
 
         // Move active bird
         if (!allDone && activeBird && !activeBird.hit) {
-          activeBird.x -= speed * 0.85;
+          activeBird.x -= speed;
           activeBird.frameTimer++;
-          if (activeBird.frameTimer > 12) { activeBird.frame++; activeBird.frameTimer = 0; }
+          if (activeBird.frameTimer > 10) { activeBird.frame++; activeBird.frameTimer = 0; }
 
-          // Respawn if passed off-screen
-          if (activeBird.x + (activeBird.bW || 98) < 0) {
+          // If bird flies off-screen without being hit, respawn it
+          if (activeBird.x + activeBird.w + 50 < 0) {
             activeBird = spawnBird(currentQuestionIdx);
           }
 
-          // Bird collision
-          if (activeBird.bW > 0) {
-            var bPad = 4;
-            var dinoMidX = dino.x + dino.w/2;
-            var dinoMidY = dino.y + dino.h/2;
-            if (dinoMidX > activeBird.bx + bPad &&
-                dinoMidX < activeBird.bx + activeBird.bW - bPad &&
-                dinoMidY > activeBird.y + bPad &&
-                dinoMidY < activeBird.y + activeBird.bH - bPad) {
-              activeBird.hit = true;
-              currentQuestionIdx++;
-              showPopup(activeBird.qi);
-            }
+          // Collision with dino
+          if (dino.x + 28 > activeBird.x + 4 &&
+              dino.x + 4 < activeBird.x + activeBird.w + 40 &&
+              dino.y > activeBird.y - 4 &&
+              dino.y < activeBird.y + activeBird.h + 30) {
+            activeBird.hit = true;
+            currentQuestionIdx++;
+            showPopup(activeBird.qi);
           }
+        }
+
+        // Move cacti
+        for (var ci = 0; ci < cacti.length; ci++) {
+          cacti[ci].x -= speed;
+          if (cacti[ci].x < -40) cacti[ci].x = W + 100 + Math.random() * 200;
+        }
+
+        // Move bumps
+        for (var bui = 0; bui < bumps.length; bui++) {
+          bumps[bui].x -= speed;
+          if (bumps[bui].x < -20) bumps[bui].x = W + Math.random() * 100;
         }
       }
 
-      // ─── DRAW ─────────────────────────────────────────────────
-      drawClouds();
+      // Draw
       drawGround();
-      cacti.forEach(function(c) { drawCactus(c); });
+      ctx.fillStyle = '#1a1a1a';
+      for (var bdi = 0; bdi < bumps.length; bdi++) {
+        var b = bumps[bdi];
+        ctx.beginPath();
+        ctx.arc(b.x, GY + dino.h, b.w/2, Math.PI, 0);
+        ctx.fill();
+      }
+      for (var ci2 = 0; ci2 < cacti.length; ci2++) drawCactus(cacti[ci2]);
 
       if (!allDone && activeBird) drawBird(activeBird);
 
-      // Dino — flash white on cactus hit
-      if (dino.flashTimer > 0) {
-        ctx.save();
-        ctx.globalAlpha = (dino.flashTimer % 4 < 2) ? 0.3 : 1;
-      }
-      drawDino(dino.x, dino.y, dino.frame, dino.jumping);
-      if (dino.flashTimer > 0) ctx.restore();
+      drawDino(dino.x, dino.y - dino.h + 2, dino.frame);
+      drawScore();
 
-      // ─── HUD ──────────────────────────────────────────────────
-      // Score: discovered count
-      ctx.fillStyle = '#444';
-      ctx.font = '8px "DM Mono", monospace';
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'top';
-      ctx.fillText('DISCOVERED ' + currentQuestionIdx + '/' + QUESTIONS.length, W - 10, 10);
-
-      // Cactus hit counter
-      if (cactusHitCount > 0) {
-        ctx.fillStyle = 'rgba(232,80,80,0.7)';
-        ctx.font = '8px "DM Mono", monospace';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText('CACTUS HITS: ' + cactusHitCount, 10, 10);
+      // Show subtle hint when bird is off screen (approaching from right)
+      if (!allDone && activeBird && !activeBird.hit && activeBird.x > W) {
+        drawRespawnHint();
       }
 
-      // Incoming bird hint
-      if (!allDone && activeBird && !activeBird.hit && activeBird.x > W - 20) {
-        ctx.fillStyle = 'rgba(0,255,136,0.4)';
-        ctx.font = '8px "DM Mono", monospace';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'top';
-        ctx.fillText('► ' + QUESTIONS[currentQuestionIdx].label + ' incoming...', W - 10, 22);
-      }
-
-      // All-done banner
+      // All questions answered — show completion message
       if (allDone && !gamePaused) {
-        ctx.fillStyle = 'rgba(0,255,136,0.75)';
-        ctx.font = 'bold 11px "DM Mono", monospace';
+        ctx.fillStyle = 'rgba(0,255,136,0.7)';
+        ctx.font = 'bold 12px DM Mono, monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('ALL QUESTIONS ANSWERED . scroll down for the invite ↓', W/2, 24);
+        ctx.fillText('ALL QUESTIONS ANSWERED . scroll down for the invite', W/2, 30);
       }
 
       requestAnimationFrame(loop);
