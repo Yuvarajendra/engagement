@@ -21,17 +21,22 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 #boot-lines{flex:1;overflow:hidden;font-size:10.5px;line-height:1.85;display:flex;flex-direction:column;gap:0;}
 .bl{opacity:0;transform:translateY(3px);transition:opacity 0.15s,transform 0.15s;}
 .bl.show{opacity:1;transform:none;}
-.bl-prompt{color:var(--gold);}
-.bl-cmd{color:#c8d3f5;}
-.bl-ok{color:var(--neon);}
-.bl-warn{color:#ffa657;}
-.bl-err{color:#ff6b6b;}
-.bl-dim{color:#444;}
-.bl-phi{color:#8888bb;font-style:italic;}
-.bl-bar{color:var(--neon);}
-.bl-pkg{color:#c099ff;}
-.bl-info{color:var(--blue);}
-.bl-comment{color:#444;}
+.bl-prompt{color:#e2b714;}           /* gold — prompt symbol */
+.bl-cmd{color:#82aaff;}              /* bright blue — commands */
+.bl-ok{color:#c3e88d;}               /* lime green — success */
+.bl-warn{color:#ffcb6b;}             /* amber — warnings */
+.bl-err{color:#ff5370;}              /* red — errors */
+.bl-dim{color:#3d3d3d;}              /* muted — comments */
+.bl-phi{color:#b4a0ff;font-style:italic;}  /* soft violet — philosophy */
+.bl-bar{color:#00e5ff;}              /* cyan — progress bars */
+.bl-pkg{color:#c792ea;}              /* lavender — packages */
+.bl-info{color:#89ddff;}             /* sky blue — info */
+.bl-comment{color:#546e7a;}          /* slate — inline comments */
+.bl-num{color:#f78c6c;}              /* peach — numbers/values */
+.bl-str{color:#c3e88d;}              /* green — strings */
+.bl-tag{color:#f07178;}              /* coral — tags/labels */
+.bl-sys{color:#ffcb6b;font-weight:600;} /* bold amber — system output */
+.bl-hi{color:#ffffff;font-weight:600;}  /* white bold — highlights */
 #boot-footer{margin-top:10px;font-size:9px;letter-spacing:1px;color:#333;text-align:center;}
 #boot-progress-label{color:var(--gold);font-size:9px;letter-spacing:2px;text-align:center;margin-top:8px;}
 .pause-hint{color:#333;font-size:8px;letter-spacing:1px;text-align:center;margin-top:4px;}
@@ -72,11 +77,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 .sec-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px;}
 .sec-title{font-family:'Playfair Display',serif;font-size:clamp(24px,6vw,36px);text-align:center;color:var(--cream);margin-bottom:32px;}
 
-/* compat */
-#compat{background:var(--terminal);padding:52px 0 36px;}
-.compat-hdr{text-align:center;padding:0 16px 24px;}
-#cc-wrap{width:100%;max-width:480px;margin:0 auto;padding:0 12px;}
-#cc{width:100%;display:block;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid #1e2530;}
 
 /* datasets */
 #datasets{padding:52px 16px;}
@@ -92,13 +92,13 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 .ds-role{font-family:'DM Mono',monospace;font-size:8px;color:var(--gold);margin-top:3px;}
 .ds-body{padding:12px 14px;}
 .ds-row{display:flex;gap:8px;margin-bottom:7px;font-family:'DM Mono',monospace;font-size:9px;align-items:baseline;}
-.ds-key{color:#444;min-width:95px;flex-shrink:0;}
-.ds-val{color:var(--cream);opacity:0.85;line-height:1.5;}
+.ds-key{color:#444;min-width:88px;flex-shrink:0;}
+.ds-val{color:var(--cream);opacity:0.85;line-height:1.5;word-break:break-word;overflow-wrap:anywhere;}
 .ds-val.neon{color:var(--neon);}
 .ds-val.gold{color:var(--gold);}
 .ds-val.pink{color:var(--pink);}
 .ds-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04);}
-.chip{padding:2px 8px;border-radius:100px;font-family:'DM Mono',monospace;font-size:7px;border:1px solid;}
+.chip{padding:2px 8px;border-radius:100px;font-family:'DM Mono',monospace;font-size:7px;border:1px solid;white-space:nowrap;}
 .chip.pink{border-color:rgba(224,128,160,0.3);color:var(--pink);background:rgba(224,128,160,0.05);}
 .chip.gold{border-color:rgba(184,147,106,0.3);color:var(--gold);background:rgba(184,147,106,0.05);}
 .chip.blue{border-color:rgba(128,168,224,0.3);color:var(--blue);background:rgba(128,168,224,0.05);}
@@ -201,105 +201,93 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 <!-- MAIN -->
 <div id="main">
   <div class="nav-dots" id="navDots">
-    <div class="nd active" data-t="compat"></div>
     <div class="nd" data-t="datasets"></div>
-    <div class="nd" data-t="photos"></div>
     <div class="nd" data-t="funfacts"></div>
     <div class="nd" data-t="schedule"></div>
     <div class="nd" data-t="closing"></div>
   </div>
 
-  <!-- COMPAT ENGINE -->
-  <section id="compat" style="background:var(--terminal);padding:52px 0 36px;">
-    <div class="compat-hdr">
-      <div class="sec-label">// neural_network.inference</div>
-      <div class="sec-title" style="margin-bottom:6px;">Compatibility Engine</div>
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:#333;letter-spacing:1px;"># Twins-PIVNet . two inputs . one output . zero doubt</div>
-    </div>
-    <div id="cc-wrap"><canvas id="cc" height="600"></canvas></div>
-  </section>
-
   <div class="gold-line"></div>
 
   <!-- DATASETS -->
   <section id="datasets">
-    <div class="sec-label">// input.datasets</div>
-    <div class="sec-title">The Datasets</div>
+    <div class="sec-label">// input.subjects</div>
+    <div class="sec-title">The Subjects</div>
+    <div style="font-family:'DM Mono',monospace;font-size:7px;letter-spacing:2px;color:#444;text-align:center;margin-top:-20px;margin-bottom:28px;">// relationship_build: beta_to_production</div>
     <div class="ds-grid">
-      <div class="ds-card bride">
-        <div class="ds-top">
-          <div class="ds-img"><img id="ds-m" src="" alt="Dr. Madhura"></div>
-          <div>
-            <div class="ds-tag">// dataset_id: BRIDE . v1.0</div>
-            <div class="ds-name">Dr. Madhura Sudhir</div>
-            <div class="ds-role">BDS . Dentist</div>
+
+      <!-- BRIDE CARD -->
+      <div class="ds-card bride" style="overflow:hidden;">
+        <div style="display:flex;min-height:360px;">
+          <!-- Photo -->
+          <div style="width:40%;flex-shrink:0;position:relative;background:#000;overflow:hidden;">
+            <img id="ds-m" src="" alt="Dr. Madhura" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;mix-blend-mode:screen;filter:brightness(0.95)contrast(1.05)saturate(1.1);">
           </div>
-        </div>
-        <div class="ds-body">
-          <div class="ds-row"><span class="ds-key">qualifications:</span><span class="ds-val pink">BDS - Dental Surgery</span></div>
-          <div class="ds-row"><span class="ds-key">specialisation:</span><span class="ds-val">Dentistry . Oral Care</span></div>
-          <div class="ds-row"><span class="ds-key">father:</span><span class="ds-val">Sudhir</span></div>
-          <div class="ds-row"><span class="ds-key">mother:</span><span class="ds-val">Veda</span></div>
-          <div class="ds-row"><span class="ds-key">family_config:</span><span class="ds-val neon">only_child: true</span></div>
-          <div class="ds-row"><span class="ds-key">status:</span><span class="ds-val pink">converging -&gt; engaged</span></div>
-          <div class="ds-chips">
-            <span class="chip pink">matcha lover</span><span class="chip blue">traveller</span>
-            <span class="chip pink">dentist by day</span><span class="chip gold">smiles for a living</span>
-            <span class="chip neon">only child</span>
-          </div>
-        </div>
-      </div>
-      <div class="ds-card groom">
-        <div class="ds-top">
-          <div class="ds-img"><img id="ds-y" src="" alt="Dr. Yuvarajendra"></div>
-          <div>
-            <div class="ds-tag">// dataset_id: GROOM . v1.0</div>
-            <div class="ds-name">Dr. Yuvarajendra Reddy</div>
-            <div class="ds-role">Applied AI . Fluid Dynamicist</div>
-          </div>
-        </div>
-        <div class="ds-body">
-          <div class="ds-row"><span class="ds-key">qualifications:</span><span class="ds-val gold">PhD . AI & Fluid Dynamics</span></div>
-          <div class="ds-row"><span class="ds-key">specialisation:</span><span class="ds-val">Computational Fluid Dynamics</span></div>
-          <div class="ds-row"><span class="ds-key">father:</span><span class="ds-val">Anjaneya Reddy</span></div>
-          <div class="ds-row"><span class="ds-key">mother:</span><span class="ds-val">Kalpana Reddy</span></div>
-          <div class="ds-row"><span class="ds-key">family_config:</span><span class="ds-val neon">only_child: true</span></div>
-          <div class="ds-row"><span class="ds-key">status:</span><span class="ds-val gold">gradient_descent -&gt; minimum found</span></div>
-          <div class="ds-chips">
-            <span class="chip gold">runner</span><span class="chip blue">traveller</span>
-            <span class="chip neon">AI researcher</span><span class="chip gold">fluid equations</span>
-            <span class="chip neon">only child</span>
+          <!-- Data -->
+          <div style="flex:1;padding:16px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;">
+            <div>
+              <div class="ds-tag" style="margin-bottom:5px;">// subject_01 . BRIDE . v1.0</div>
+              <div class="ds-name">Dr. Madhura Sudhir</div>
+              <div class="ds-role" style="margin-bottom:12px;color:var(--pink);">BDS (Dentist) . MBA</div>
+              <div class="ds-row"><span class="ds-key">father:</span><span class="ds-val">Mr. Sudhir</span></div>
+              <div class="ds-row"><span class="ds-key">mother:</span><span class="ds-val">Mrs. Vedha</span></div>
+              <div class="ds-row"><span class="ds-key">family_config:</span><span class="ds-val neon">only_child</span></div>
+              <div class="ds-row"><span class="ds-key">work:</span><span class="ds-val">Product Implementation Specialist</span></div>
+              <div class="ds-row"><span class="ds-key">status:</span><span class="ds-val pink">emotionally_available</span></div>
+              <div class="ds-row"><span class="ds-key">personality:</span><span class="ds-val">kind . composed . emotionally_intelligent</span></div>
+              <div class="ds-row"><span class="ds-key">op_mode:</span><span class="ds-val">smiles_despite_deadlines</span></div>
+              <div class="ds-row"><span class="ds-key">known_for:</span><span class="ds-val neon">fixing_smiles . fixing_health_apps</span></div>
+              <div class="ds-row"><span class="ds-key">expression:</span><span class="ds-val pink">always smiling</span></div>
+              <div class="ds-row"><span class="ds-key">metadata:</span><span class="ds-val" style="color:#888;font-style:italic;">healing_energy</span></div>
+            </div>
+            <div class="ds-chips" style="margin-top:10px;">
+              <span class="chip pink">matcha_addict</span><span class="chip blue">globe_trotter</span><span class="chip gold">aesthetic_curator</span>
+              <span class="chip pink">shopping</span><span class="chip neon">quietly_caring</span><span class="chip gold">only_child_energy</span>
+              <span class="chip blue">foodie</span><span class="chip pink">smile_architect</span><span class="chip neon">health_nerd</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- GROOM CARD -->
+      <div class="ds-card groom" style="overflow:hidden;">
+        <div style="display:flex;min-height:360px;">
+          <!-- Data -->
+          <div style="flex:1;padding:16px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;">
+            <div>
+              <div class="ds-tag" style="margin-bottom:5px;">// subject_02 . GROOM . v1.0</div>
+              <div class="ds-name">Dr. Yuvarajendra Reddy</div>
+              <div class="ds-role" style="margin-bottom:12px;">PhD . MS Aeronautics</div>
+              <div class="ds-row"><span class="ds-key">father:</span><span class="ds-val">Mr. Anjaneya Reddy</span></div>
+              <div class="ds-row"><span class="ds-key">mother:</span><span class="ds-val">Mrs. Kalpana</span></div>
+              <div class="ds-row"><span class="ds-key">family_config:</span><span class="ds-val neon">only_child</span></div>
+              <div class="ds-row"><span class="ds-key">work:</span><span class="ds-val">Applied AI Researcher</span></div>
+              <div class="ds-row"><span class="ds-key">status:</span><span class="ds-val gold">cautiously_optimistic</span></div>
+              <div class="ds-row"><span class="ds-key">personality:</span><span class="ds-val">analytical . philosophical . morbidly_sane</span></div>
+              <div class="ds-row"><span class="ds-key">debug_mode:</span><span class="ds-val">trust_the_physics</span></div>
+              <div class="ds-row"><span class="ds-key">known_for:</span><span class="ds-val neon">debugging_life_using_first_principles</span></div>
+              <div class="ds-row"><span class="ds-key">op_mode:</span><span class="ds-val gold">caffeine_driven*</span></div>
+              <div class="ds-row"><span class="ds-key">metadata:</span><span class="ds-val" style="color:#888;font-style:italic;">* side effects may include philosophy</span></div>
+            </div>
+            <div class="ds-chips" style="margin-top:10px;">
+              <span class="chip gold">recreational_runner</span><span class="chip neon">AI_tinkerer</span><span class="chip blue">bag_packing</span>
+              <span class="chip neon">parallel_processing</span><span class="chip gold">cross_fit</span><span class="chip pink">main_character</span>
+              <span class="chip pink">turbulence</span><span class="chip gold">caffeine</span><span class="chip neon">fluid_equations</span>
+            </div>
+          </div>
+          <!-- Photo -->
+          <div style="width:40%;flex-shrink:0;position:relative;background:#000;overflow:hidden;">
+            <img id="ds-y" src="" alt="Dr. Yuvarajendra" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;mix-blend-mode:screen;filter:brightness(0.95)contrast(1.05)saturate(1.1);">
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- Section footer -->
+    <div style="font-family:'DM Mono',monospace;font-size:7px;letter-spacing:2px;color:#333;text-align:center;margin-top:24px;padding-bottom:4px;">current_status: transitioning_to_shared_life</div>
   </section>
 
-  <div class="gold-line"></div>
-
-  <!-- PHOTOS -->
-  <section id="photos">
-    <div class="sec-label">// input_subjects.portrait</div>
-    <div class="sec-title">The Two of Us</div>
-    <div class="photos-inner">
-      <div class="photos-duo">
-        <div class="photo-col bride">
-          <div class="photo-frame">
-            <img id="ph-m" src="" alt="Dr. Madhura">
-            <div class="photo-name-tag">Dr. Madhura<span class="photo-role-tag">Dentist . BDS</span></div>
-          </div>
-        </div>
-        <div class="photo-col groom">
-          <div class="photo-frame">
-            <img id="ph-y" src="" alt="Dr. Yuvarajendra">
-            <div class="photo-name-tag">Dr. Yuvarajendra<span class="photo-role-tag">AI Researcher . PhD</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="photos-and">&amp;</div>
-      <div class="photos-date">17 . JUNE . 2026 . NANDI HILLS</div>
-    </div>
-  </section>
 
   <div class="gold-line"></div>
 
@@ -322,7 +310,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
   <!-- SCHEDULE -->
   <section id="schedule">
     <div class="sec-label">// event.schedule</div>
-    <div class="sec-title">The Day of</div>
+    <div class="sec-title">SUMMARY</div>
     <div class="tl-wrap">
       <div class="timeline">
         <div class="t-item"><div class="t-dot filled"></div><div class="t-time">17 June 2026</div><div class="t-event">Engagement Ceremony</div><div class="t-note">Amita Rasa . Nandi Hills . Karnataka</div></div>
@@ -372,8 +360,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
   var YSRC = document.getElementById('img-y').src;
   document.getElementById('ds-m').src = MSRC;
   document.getElementById('ds-y').src = YSRC;
-  document.getElementById('ph-m').src = MSRC;
-  document.getElementById('ph-y').src = YSRC;
 
   // =============================================
   // BOOT SEQUENCE
@@ -383,10 +369,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
   var PAUSE_DURATION = 3000;
 
   var bootLines = [
-    {t:'cmd',  s:'> INITIALIZING HUMAN_COLLABORATION_ENGINE v2026.06.17'},
-    {t:'ok',   s:'  [OK] kernel loaded . substrate: carbon-based . runtime: forever'},
+    {t:'sys',  s:'> INITIALIZING HUMAN_COLLABORATION_ENGINE v2026.06.17'},
+    {t:'info', s:'  substrate: carbon-based . runtime: forever . cores: 2'},
+    {t:'ok',   s:'  [OK] kernel loaded . memory: heart . storage: shared_life'},
     {t:'pkg',  s:'  installing love-core@infinity...'},
     {t:'bar',  s:'  [=====>              ] 27%  resolving peer dependencies...'},
+    {t:'num',  s:'  peers found: 2 . compatibility_index: 0.9997'},
     {t:'pkg',  s:'  installing thermodynamics@gibbs-2026...'},
     {t:'ok',   s:'  [OK] delta-G = -Infinity . spontaneous process confirmed'},
     {t:'phi',  s:'  // "Love is not a feeling. It is a phase transition."'},
@@ -394,24 +382,27 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     {t:'bar',  s:'  [==========>         ] 52%  compiling attention heads...'},
     {t:'warn', s:'  [WARN] only_child detected in dataset_MADHURA'},
     {t:'warn', s:'  [WARN] only_child detected in dataset_YUVARAJENDRA'},
-    {t:'ok',   s:'  [OVERRIDE] combined_family_pressure: MAXIMUM . proceeding anyway'},
+    {t:'tag',  s:'  [OVERRIDE] combined_family_pressure: MAXIMUM . proceeding anyway'},
+    {t:'str',  s:'  "two only-children . double the stubbornness . infinite the love"'},
     {t:'pkg',  s:'  installing matcha-dependency@latest for Madhura...'},
     {t:'ok',   s:'  [OK] matcha_level: optimal . smiles_per_day: Infinity'},
     {t:'pkg',  s:'  installing dawn-runner@5am for Yuvarajendra...'},
-    {t:'ok',   s:'  [OK] equations_solved: many . early_stopping: false'},
+    {t:'num',  s:'  [OK] equations_solved: many . early_stopping: false . caffeine: yes'},
     {t:'cmd',  s:'> loading irreversible-coupling-protocol@1.0.0...'},
     {t:'bar',  s:'  [===============>    ] 76%  binding lifelong collaboration...'},
     {t:'phi',  s:'  // "Two independent systems. Irreversibly coupled."'},
+    {t:'info', s:'  entropy: decreasing . signal: clear . noise: manageable'},
     {t:'cmd',  s:'> verifying thermodynamic-inevitability@navier-stokes...'},
     {t:'ok',   s:'  [OK] div(Love) = 0 . irrotational flow confirmed'},
+    {t:'num',  s:'  [OK] delta-H: exothermic . delta-S: positive . delta-G: negative'},
     {t:'pkg',  s:'  installing longitudinal-partnership@decades...'},
     {t:'ok',   s:'  [OK] time_horizon: unbounded . projection: upward'},
     {t:'cmd',  s:'> running final compatibility inference...'},
     {t:'bar',  s:'  [===================] 100% BUILD SUCCESSFUL in 2026ms'},
     {t:'phi',  s:'  // "The model did not predict this. It recognised it."'},
-    {t:'ok',   s:'  softmax([yes, YES, absolutely]) -> argmax = YES'},
-    {t:'ok',   s:'  confidence: 1.0000 . p-value < 0.0001'},
-    {t:'cmd',  s:'> RESULT: ENGAGE() . 17 June 2026 . Amita Rasa . Nandi Hills'},
+    {t:'hi',   s:'  softmax([yes, YES, absolutely]) -> argmax = YES'},
+    {t:'ok',   s:'  confidence: 1.0000 . p-value < 0.0001 . null_hypothesis: rejected'},
+    {t:'sys',  s:'> RESULT: ENGAGE() . 17 June 2026 . Amita Rasa . Nandi Hills'},
   ];
 
   var tlEl = document.getElementById('boot-lines');
@@ -495,45 +486,45 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     {
       id: 'what',
       label: 'WHAT?',
-      tag: '// event.type',
-      title: 'An Engagement',
-      body: 'Two datasets. One merge commit.<br>A <span class="hi">lifelong collaboration</span> has been initiated.<br><span class="gr">status: committed . runtime: forever</span>'
+      tag: '// event_type.ssh',
+      title: 'ENGAGEMENT INVITE',
+      body: 'They found a commit in each other\'s lives. Debugged it. Fell in love with it. Now they\'re pushing the commits forever. This is your engagement invite.<br><span class="gr">status: to_be_engaged</span>'
     },
     {
       id: 'who',
       label: 'WHO?',
-      tag: '// subjects.id',
-      title: 'Dr. Madhura & Dr. Yuvarajendra',
+      tag: '// who.exe',
+      title: 'MEET THE PAIR',
       body: null,
       isPhoto: true
     },
     {
       id: 'when',
       label: 'WHEN?',
-      tag: '// date.stamp',
-      title: '17 June 2026',
-      body: 'Wednesday . An auspicious convergence date.<br><span class="hi">Amita Rasa . Nandi Hills . Karnataka</span><br><span class="gr">timestamp: 2026-06-17T00:00:00Z</span>'
+      tag: '// timestamp.md',
+      title: 'SAVE THE DATE',
+      body: 'Calendars were consulted. Stars were aligned. Families were convinced. Your instance is expected on <span class="hi">17th June 2026</span>.<br><span class="gr">time: 10:00 AM onwards</span>'
     },
     {
       id: 'where',
       label: 'WHERE?',
-      tag: '// venue.location',
-      title: 'Amita Rasa',
-      body: 'Foothills of <span class="hi">Nandi Hills</span> . Karnataka . India<br>Next to Kanive Nandeeshwara Temple<br><span class="gr">~60km from Bengaluru . 28 acres</span>'
+      tag: '// location.resolve()',
+      title: 'VENUE — Amita Rasa, India',
+      body: 'Nestled at the foot of Nandi Hills — where ancient rock, open sky, and quiet hills have witnessed countless beginnings. This one is ours, please come and bless us.<br><span class="gr">env: open_sky</span>'
     },
     {
-      id: 'why',
-      label: 'WHY?',
-      tag: '// reason.core',
-      title: 'delta-G < 0',
-      body: 'The coupling is <span class="hi">thermodynamically spontaneous</span>.<br>The system had no choice. Neither did they.<br><span class="gr">irrotational flow . div(Love) = 0</span>'
+      id: 'getting_there',
+      label: 'DIRECTIONS',
+      tag: '// route.config',
+      title: 'GETTING THERE',
+      body: 'Navigate toward Nandi Hills → continue until the roads narrow, the air cools, and your responsibilities lose signal → trust Google Maps more than your confidence.<br><span class="gr">wrong_turns: not_recommended</span>'
     },
     {
       id: 'invited',
-      label: 'INVITED!',
+      label: 'ACCESS',
       tag: '// YOU ARE INVITED',
-      title: 'You Are Invited',
-      body: 'Join us on <span class="hi">17 June 2026</span> at Amita Rasa, Nandi Hills.<br>Scroll down to see the full invitation.<br><span class="gr">please_come: true . dress_code: festive</span>',
+      title: 'YOU ARE INVITED',
+      body: 'Join us on <span class="hi">17 June 2026</span> at Amita Rasa, Nandi Hills.<br>You passed all the levels. This is your reward — great food, awesome people, and witness our engagement.<br><span class="gr">access_granted: true . attendance: mandatory</span>',
       isLast: true
     }
   ];
@@ -545,8 +536,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     canvas.height = 220;
     var ctx = canvas.getContext('2d');
     var H = 220;
-    var GY = 160; // ground y
-    var questionIdx = 0;
+    var GY = 170; // ground y — dino feet rest here
+    var hits = 0, misses = 0;
+
+    // Track which question is currently active (must be hit before moving on)
+    var currentQuestionIdx = 0;
+    var allDone = false;
     var gameOver = false;
     var gamePaused = false;
 
@@ -568,16 +563,17 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       bumps.push({x: Math.random() * W * 2, h: 3 + Math.random() * 5, w: 8 + Math.random() * 16});
     }
 
-    // Cactuses
-    var cacti = [{x: W + 80, w: 14, h: 36}, {x: W + 280, w: 10, h: 28}];
+    // Cactuses (permanent, cycle around)
+    var cacti = [{x: W + 80, w: 14, h: 36}, {x: W + 320, w: 10, h: 28}];
 
-    // Birds (questions)
-    var birds = [];
-    var birdSpacing = W * 1.2;
-    for (var qi = 0; qi < QUESTIONS.length; qi++) {
-      birds.push({
-        x: W + 100 + qi * birdSpacing,
-        y: GY - 70 - Math.random() * 30,
+    // Single active bird - carries the current question banner
+    // It respawns from the right every time it passes off-screen without being hit
+    var activeBird = spawnBird(currentQuestionIdx);
+
+    function spawnBird(qi) {
+      return {
+        x: W + 120,
+        y: GY - 63 - Math.random() * 55,
         w: 52,
         h: 22,
         label: QUESTIONS[qi].label,
@@ -585,13 +581,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
         hit: false,
         frame: 0,
         frameTimer: 0
-      });
+      };
     }
 
     var speed = 2.8;
     var gravity = 0.55;
     var jumpForce = -11;
-    var raf;
 
     function jump() {
       if (gamePaused || gameOver) return;
@@ -607,22 +602,15 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 
     function drawDino(x, y, frame) {
       var GOLD = '#b8936a';
-      var CREAM = '#f5f0e8';
       ctx.fillStyle = GOLD;
-      // body
       ctx.fillRect(x + 8, y + 8, 18, 20);
-      // head
       ctx.fillRect(x + 14, y, 14, 14);
-      // eye
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(x + 22, y + 3, 3, 3);
-      // mouth
       ctx.fillStyle = GOLD;
       ctx.fillRect(x + 24, y + 9, 5, 2);
-      // tail
       ctx.fillRect(x, y + 18, 10, 6);
       ctx.fillRect(x + 2, y + 22, 6, 5);
-      // legs - alternate
       if (frame % 2 === 0) {
         ctx.fillRect(x + 10, y + 28, 6, 12);
         ctx.fillRect(x + 20, y + 28, 6, 8);
@@ -630,7 +618,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
         ctx.fillRect(x + 10, y + 28, 6, 8);
         ctx.fillRect(x + 20, y + 28, 6, 12);
       }
-      // arm
       ctx.fillRect(x + 22, y + 12, 8, 4);
     }
 
@@ -639,24 +626,17 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       var x = bird.x, y = bird.y;
       var NEON = '#00ff88';
       var GOLD = '#b8936a';
-      // Wings - animated flap
       var flapUp = bird.frame % 2 === 0;
       ctx.fillStyle = GOLD;
-      // body
       ctx.fillRect(x + 14, y + 6, 22, 10);
-      // head
       ctx.fillRect(x + 32, y + 3, 10, 8);
-      // beak
       ctx.fillStyle = '#e8a060';
       ctx.fillRect(x + 40, y + 6, 6, 3);
-      // eye
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(x + 36, y + 4, 2, 2);
-      // tail
       ctx.fillStyle = GOLD;
       ctx.fillRect(x + 8, y + 7, 8, 4);
       ctx.fillRect(x + 4, y + 9, 6, 3);
-      // wings
       ctx.fillStyle = '#d4a870';
       if (flapUp) {
         ctx.fillRect(x + 14, y, 16, 6);
@@ -665,34 +645,43 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
         ctx.fillRect(x + 14, y + 14, 16, 6);
         ctx.fillRect(x + 10, y + 18, 12, 4);
       }
-      // banner
-      var bx = x - 40, by = y + 2;
-      ctx.fillStyle = 'rgba(13,17,23,0.92)';
+      var labelW = Math.max(76, bird.label.length * 9 + 16);
+      var bx = x - labelW, by = y - 2;
+      ctx.fillStyle = 'rgba(13,17,23,0.95)';
       ctx.strokeStyle = GOLD;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(bx, by, 42, 18, 3);
+      ctx.roundRect(bx, by, labelW, 26, 4);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = NEON;
-      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.font = 'bold 12px DM Mono, monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(bird.label, bx + 21, by + 9);
-      // string from banner to bird
+      ctx.fillText(bird.label, bx + labelW/2, by + 13);
       ctx.strokeStyle = 'rgba(184,147,106,0.4)';
       ctx.lineWidth = 0.8;
       ctx.beginPath();
-      ctx.moveTo(bx + 42, by + 9);
+      ctx.moveTo(bx + 66, by + 13);
       ctx.lineTo(x + 14, y + 8);
       ctx.stroke();
+    }
+
+    // Draw a subtle "missed - coming again!" hint arrow on the right edge
+    function drawRespawnHint() {
+      if (allDone || gamePaused) return;
+      var NEON = '#00ff88';
+      ctx.fillStyle = 'rgba(0,255,136,0.25)';
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('► ' + QUESTIONS[currentQuestionIdx].label + ' coming...', W - 8, 30);
     }
 
     function drawCactus(c) {
       var x = c.x, h = c.h, w = c.w;
       ctx.fillStyle = '#2a5a2a';
       ctx.fillRect(x, GY - h, w, h);
-      // arms
       ctx.fillRect(x - 8, GY - h + 10, 8, 5);
       ctx.fillRect(x - 8, GY - h + 4, 4, 8);
       ctx.fillRect(x + w, GY - h + 14, 8, 5);
@@ -703,27 +692,25 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       ctx.strokeStyle = '#2a2a2a';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.moveTo(0, GY + dino.h);
-      ctx.lineTo(W, GY + dino.h);
+      ctx.moveTo(0, GY);
+      ctx.lineTo(W, GY);
       ctx.stroke();
-      // dashes
       ctx.strokeStyle = '#1a1a1a';
       ctx.lineWidth = 1;
       for (var dx = 0; dx < W; dx += 20) {
         ctx.beginPath();
-        ctx.moveTo(dx, GY + dino.h + 4);
-        ctx.lineTo(dx + 10, GY + dino.h + 4);
+        ctx.moveTo(dx, GY + 4);
+        ctx.lineTo(dx + 10, GY + 4);
         ctx.stroke();
       }
     }
 
     function drawScore() {
-      var done = QUESTIONS.filter(function(q, i) { return birds[i] && birds[i].hit; }).length;
       ctx.fillStyle = '#2a2a2a';
       ctx.font = '8px DM Mono, monospace';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
-      ctx.fillText('DISCOVERED ' + done + '/' + QUESTIONS.length, W - 10, 10);
+      ctx.fillText('DISCOVERED ' + currentQuestionIdx + '/' + QUESTIONS.length, W - 10, 10);
     }
 
     function showPopup(qi) {
@@ -737,8 +724,8 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       titleEl.textContent = q.title;
       if (q.isPhoto) {
         bodyEl.innerHTML = '<div class="popup-who-photos">' +
-          '<div class="popup-who-photo"><img src="' + MSRC + '"><div class="popup-who-label">Dr. Madhura . BDS</div></div>' +
-          '<div class="popup-who-photo"><img src="' + YSRC + '"><div class="popup-who-label">Dr. Yuvarajendra . PhD</div></div>' +
+          '<div class="popup-who-photo"><img src="' + MSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:"Playfair Display",serif;letter-spacing:1px;">Madhura</div></div>' +
+          '<div class="popup-who-photo"><img src="' + YSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:"Playfair Display",serif;letter-spacing:1px;">Yuvarajendra</div></div>' +
           '</div>';
       } else {
         bodyEl.innerHTML = q.body;
@@ -752,6 +739,44 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     document.getElementById('popup-close').addEventListener('click', function() {
       document.getElementById('popup-overlay').classList.remove('show');
       gamePaused = false;
+      // currentQuestionIdx was already incremented on hit; spawn next bird or mark done
+      if (currentQuestionIdx >= QUESTIONS.length) {
+        allDone = true;
+      } else {
+        activeBird = spawnBird(currentQuestionIdx);
+      }
+    });
+
+    // Persistent scroll button drawn on canvas when allDone
+    function drawScrollButton() {
+      var bw = 220, bh = 34, bx = W/2 - bw/2, by = H/2 - bh/2 + 10;
+      ctx.fillStyle = 'rgba(13,17,23,0.92)';
+      ctx.strokeStyle = '#b8936a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, 100);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#b8936a';
+      ctx.font = 'bold 11px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('▼  SCROLL TO INVITATION  ▼', W/2, by + bh/2);
+    }
+
+    canvas.addEventListener('click', function(e) {
+      if (allDone) {
+        // Check if click is on scroll button area
+        var bw = 220, bh = 34, bx = W/2 - bw/2, by = H/2 - bh/2 + 10;
+        var rect = canvas.getBoundingClientRect();
+        var scaleX = W / rect.width;
+        var scaleY = H / rect.height;
+        var cx = (e.clientX - rect.left) * scaleX;
+        var cy = (e.clientY - rect.top) * scaleY;
+        if (cx >= bx && cx <= bx+bw && cy >= by && cy <= by+bh) {
+          scrollToMain();
+        }
+      }
     });
 
     function loop() {
@@ -769,22 +794,27 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
         dino.frameTimer++;
         if (dino.frameTimer > 8) { dino.frame++; dino.frameTimer = 0; }
 
-        // Move birds
-        for (var bi2 = 0; bi2 < birds.length; bi2++) {
-          var bird = birds[bi2];
-          if (!bird.hit) {
-            bird.x -= speed;
-            bird.frameTimer++;
-            if (bird.frameTimer > 10) { bird.frame++; bird.frameTimer = 0; }
-            // collision with dino
-            if (!bird.hit &&
-                dino.x + 28 > bird.x + 4 &&
-                dino.x + 4 < bird.x + bird.w + 40 &&
-                dino.y > bird.y - 4 &&
-                dino.y < bird.y + bird.h + 30) {
-              bird.hit = true;
-              showPopup(bird.qi);
-            }
+        // Move active bird
+        if (!allDone && activeBird && !activeBird.hit) {
+          activeBird.x -= speed;
+          activeBird.frameTimer++;
+          if (activeBird.frameTimer > 10) { activeBird.frame++; activeBird.frameTimer = 0; }
+
+          // If bird flies off-screen without being hit, respawn it
+          if (activeBird.x + activeBird.w + 50 < 0) {
+            misses++;
+            activeBird = spawnBird(currentQuestionIdx);
+          }
+
+          // Collision with dino
+          if (dino.x + 28 > activeBird.x + 4 &&
+              dino.x + 4 < activeBird.x + activeBird.w + 40 &&
+              dino.y > activeBird.y - 4 &&
+              dino.y < activeBird.y + activeBird.h + 30) {
+            activeBird.hit = true;
+            hits++;
+            currentQuestionIdx++;
+            showPopup(activeBird.qi);
           }
         }
 
@@ -803,28 +833,43 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 
       // Draw
       drawGround();
-
-      // draw bumps
       ctx.fillStyle = '#1a1a1a';
       for (var bdi = 0; bdi < bumps.length; bdi++) {
         var b = bumps[bdi];
         ctx.beginPath();
-        ctx.arc(b.x, GY + dino.h, b.w/2, Math.PI, 0);
+        ctx.arc(b.x, GY, b.w/2, Math.PI, 0);
         ctx.fill();
       }
-
-      // draw cacti
       for (var ci2 = 0; ci2 < cacti.length; ci2++) drawCactus(cacti[ci2]);
 
-      // draw birds
-      for (var bi3 = 0; bi3 < birds.length; bi3++) drawBird(birds[bi3]);
+      if (!allDone && activeBird) drawBird(activeBird);
 
-      // draw dino
-      drawDino(dino.x, dino.y - dino.h + 2, dino.frame);
-
+      drawDino(dino.x, dino.y - dino.h, dino.frame);
       drawScore();
 
-      raf = requestAnimationFrame(loop);
+      // Show subtle hint when bird is off screen (approaching from right)
+      if (!allDone && activeBird && !activeBird.hit && activeBird.x > W) {
+        drawRespawnHint();
+      }
+
+      // Draw hits / misses counter
+      ctx.font = '10px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = 'rgba(0,255,136,0.8)';
+      ctx.fillText('hits: ' + hits, 8, 8);
+      ctx.fillStyle = 'rgba(255,100,100,0.7)';
+      ctx.fillText('misses: ' + misses, 8, 22);
+      if (allDone && !gamePaused) {
+        ctx.fillStyle = 'rgba(0,255,136,0.7)';
+        ctx.font = 'bold 12px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ALL QUESTIONS ANSWERED . scroll down for the invite', W/2, 30);
+        drawScrollButton();
+      }
+
+      requestAnimationFrame(loop);
     }
 
     loop();
@@ -837,129 +882,10 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     main.classList.add('show');
     setTimeout(function() {
       main.scrollIntoView({behavior: 'smooth'});
-      initCompat();
       initObservers();
       initNavDots();
     }, 200);
   };
-
-  // =============================================
-  // COMPAT ENGINE
-  // =============================================
-  function initCompat() {
-    var canvas = document.getElementById('cc');
-    var wrap = document.getElementById('cc-wrap');
-    var W = wrap.clientWidth;
-    canvas.width = W;
-    canvas.height = 600;
-    var ctx = canvas.getContext('2d');
-
-    var layers = [
-      {name:'INPUT PAIR',      sub:'Madhura + Yuvarajendra', color:'#e080a0', nodes:2, type:'input'},
-      {name:'PATCH PARTITION', sub:'P=4, C=96, stride 4',    color:'#80a8e0', nodes:3, type:'proc'},
-      {name:'TWIN-SVT L1',     sub:'Local Attention  W=7',   color:'#b080d0', nodes:4, type:'attn'},
-      {name:'TWIN-SVT L2',     sub:'Global Attention Shift', color:'#b080d0', nodes:4, type:'attn'},
-      {name:'CROSS-ATTN',      sub:'Cross-frame correlation', color:'#e8a060', nodes:3, type:'cross'},
-      {name:'CORR VOLUME',     sub:'d=4  search radius',     color:'#80c080', nodes:3, type:'corr'},
-      {name:'GRU DECODER',     sub:'Iterative refine K=12',  color:'#b8936a', nodes:3, type:'dec'},
-      {name:'FLOW OUTPUT',     sub:'ENGAGE() conf:1.000',    color:'#00ff88', nodes:1, type:'output'},
-    ];
-
-    var padT = 30, padB = 30;
-    var usableH = 600 - padT - padB;
-    var layerH = usableH / (layers.length - 1);
-    var cx = W / 2;
-
-    var layerNodes = layers.map(function(layer, li) {
-      var y = padT + li * layerH;
-      var n = layer.nodes;
-      var spread = Math.min(W * 0.48, 170);
-      return Array.from({length: n}, function(_, ni) {
-        return {x: n === 1 ? cx : cx - spread/2 + (spread/(n-1))*ni, y: y};
-      });
-    });
-
-    var pulses = [], cT = 0;
-
-    function spawnP() {
-      var li = Math.floor(Math.random() * (layers.length - 1));
-      var a = layerNodes[li][Math.floor(Math.random() * layerNodes[li].length)];
-      var b = layerNodes[li+1][Math.floor(Math.random() * layerNodes[li+1].length)];
-      pulses.push({ax:a.x, ay:a.y, bx:b.x, by:b.y, t:0, col:layers[li].color});
-    }
-
-    function drawCC() {
-      ctx.clearRect(0, 0, W, 600);
-      // grid
-      ctx.strokeStyle = 'rgba(184,147,106,0.03)';
-      ctx.lineWidth = 0.5;
-      for (var gx = 0; gx < W; gx += 28) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,600); ctx.stroke(); }
-      for (var gy = 0; gy < 600; gy += 28) { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
-      // connections
-      for (var li = 0; li < layerNodes.length-1; li++) {
-        var from = layerNodes[li], to = layerNodes[li+1];
-        for (var fi = 0; fi < from.length; fi++) {
-          for (var ti = 0; ti < to.length; ti++) {
-            ctx.beginPath(); ctx.moveTo(from[fi].x,from[fi].y); ctx.lineTo(to[ti].x,to[ti].y);
-            ctx.strokeStyle = 'rgba(30,37,48,0.85)'; ctx.lineWidth = 0.5; ctx.stroke();
-          }
-        }
-      }
-      // pulses
-      for (var pi = pulses.length-1; pi >= 0; pi--) {
-        var p = pulses[pi]; p.t += 0.022;
-        if (p.t > 1) { pulses.splice(pi,1); continue; }
-        var px = p.ax+(p.bx-p.ax)*p.t, py = p.ay+(p.by-p.ay)*p.t;
-        ctx.beginPath(); ctx.arc(px,py,3.5,0,Math.PI*2);
-        ctx.fillStyle = p.col; ctx.shadowColor = p.col; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
-        var tx = p.ax+(p.bx-p.ax)*Math.max(0,p.t-0.18), ty = p.ay+(p.by-p.ay)*Math.max(0,p.t-0.18);
-        var g = ctx.createLinearGradient(tx,ty,px,py);
-        g.addColorStop(0,'transparent'); g.addColorStop(1,p.col+'99');
-        ctx.strokeStyle = g; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(px,py); ctx.stroke();
-      }
-      // layers
-      for (var lli = 0; lli < layers.length; lli++) {
-        var layer = layers[lli];
-        var nodes = layerNodes[lli];
-        var y = nodes[0].y;
-        var pulse = 0.5+0.5*Math.sin(cT*1.8+lli*0.7);
-        // label block
-        var bx = 6, bw = W * 0.36;
-        ctx.fillStyle = 'rgba(0,0,0,0.6)';
-        ctx.beginPath(); ctx.roundRect(bx,y-14,bw,30,4); ctx.fill();
-        ctx.strokeStyle = layer.color+'55'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.roundRect(bx,y-14,bw,30,4); ctx.stroke();
-        ctx.fillStyle = layer.color; ctx.font = 'bold 7px DM Mono,monospace';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(layer.name, bx+6, y-3);
-        ctx.fillStyle = '#3a3a3a'; ctx.font = '6px DM Mono,monospace';
-        ctx.fillText(layer.sub, bx+6, y+8);
-        // nodes
-        for (var nni = 0; nni < nodes.length; nni++) {
-          var nd = nodes[nni];
-          var R = layer.type === 'output' ? 15 : layer.type === 'input' ? 11 : 7;
-          var ng = ctx.createRadialGradient(nd.x,nd.y,0,nd.x,nd.y,R+8);
-          ng.addColorStop(0,layer.color+Math.floor(pulse*28+8).toString(16).padStart(2,'0'));
-          ng.addColorStop(1,'transparent');
-          ctx.beginPath(); ctx.arc(nd.x,nd.y,R+8,0,Math.PI*2); ctx.fillStyle=ng; ctx.fill();
-          ctx.beginPath(); ctx.arc(nd.x,nd.y,R,0,Math.PI*2);
-          ctx.fillStyle='#0d1117'; ctx.fill(); ctx.strokeStyle=layer.color; ctx.lineWidth=1.5; ctx.stroke();
-          if (layer.type==='output') {
-            ctx.fillStyle='#00ff88'; ctx.font='bold 8px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-            ctx.fillText('*',nd.x,nd.y);
-          } else if (layer.type==='input') {
-            ctx.fillStyle=layer.color; ctx.font='bold 8px DM Mono,monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-            ctx.fillText(nni===0?'M':'Y',nd.x,nd.y);
-          }
-        }
-      }
-      cT += 0.016;
-      if (Math.floor(cT*60)%6===0) spawnP();
-      if (Math.floor(cT*60)%11===0) spawnP();
-      requestAnimationFrame(drawCC);
-    }
-    drawCC();
-  }
 
   // =============================================
   // OBSERVERS + NAV
@@ -974,7 +900,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
   }
 
   function initNavDots() {
-    var secs = ['compat','datasets','photos','funfacts','schedule','closing'];
+    var secs = ['datasets','funfacts','schedule','closing'];
     var dots = document.querySelectorAll('.nd');
     dots.forEach(function(d) {
       d.addEventListener('click', function() {
