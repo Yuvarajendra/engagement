@@ -732,6 +732,9 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       }
       if (q.isLast) {
         bodyEl.innerHTML += '<br><button onclick="scrollToMain()" style="margin-top:12px;padding:8px 18px;background:none;border:1px solid #b8936a;border-radius:100px;color:#b8936a;font-family:DM Mono,monospace;font-size:10px;letter-spacing:2px;cursor:pointer;">SCROLL TO INVITATION</button>';
+        document.getElementById('popup-close').style.display = 'none';
+      } else {
+        document.getElementById('popup-close').style.display = '';
       }
       overlay.classList.add('show');
     }
@@ -739,7 +742,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     document.getElementById('popup-close').addEventListener('click', function() {
       document.getElementById('popup-overlay').classList.remove('show');
       gamePaused = false;
-      // currentQuestionIdx was already incremented on hit; spawn next bird or mark done
       if (currentQuestionIdx >= QUESTIONS.length) {
         allDone = true;
       } else {
@@ -747,7 +749,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       }
     });
 
-    // Persistent scroll button drawn on canvas when allDone
+        // Persistent scroll button drawn on canvas when allDone
     function drawScrollButton() {
       var bw = 220, bh = 34, bx = W/2 - bw/2, by = H/2 - bh/2 + 10;
       ctx.fillStyle = 'rgba(13,17,23,0.92)';
@@ -860,7 +862,7 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       ctx.fillText('hits: ' + hits, 8, 8);
       ctx.fillStyle = 'rgba(255,100,100,0.7)';
       ctx.fillText('misses: ' + misses, 8, 22);
-      if (allDone && !gamePaused) {
+      if (allDone) {
         ctx.fillStyle = 'rgba(0,255,136,0.7)';
         ctx.font = 'bold 12px DM Mono, monospace';
         ctx.textAlign = 'center';
