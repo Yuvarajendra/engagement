@@ -92,8 +92,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 .ds-role{font-family:'DM Mono',monospace;font-size:8px;color:var(--gold);margin-top:3px;}
 .ds-body{padding:12px 14px;}
 .ds-row{display:flex;gap:8px;margin-bottom:7px;font-family:'DM Mono',monospace;font-size:9px;align-items:baseline;}
-.ds-key{color:#444;min-width:88px;flex-shrink:0;}
-.ds-val{color:var(--cream);opacity:0.85;line-height:1.5;word-break:break-word;overflow-wrap:anywhere;}
+.ds-key{color:#444;min-width:78px;flex-shrink:0;}
+.ds-val{color:var(--cream);opacity:0.85;line-height:1.5;word-break:normal;overflow-wrap:break-word;min-width:0;}
+.ds-inner{display:flex;min-height:360px;}
+.ds-inner.reverse{flex-direction:row;}
+.ds-photo{width:40%;flex-shrink:0;position:relative;background:#000;overflow:hidden;}
+.ds-info{flex:1;min-width:0;padding:16px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;}
 .ds-val.neon{color:var(--neon);}
 .ds-val.gold{color:var(--gold);}
 .ds-val.pink{color:var(--pink);}
@@ -157,6 +161,15 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 .nav-dots{position:fixed;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:200;}
 .nd{width:5px;height:5px;border-radius:50%;background:rgba(184,147,106,0.2);cursor:pointer;transition:all 0.3s;}
 .nd.active{background:var(--gold);transform:scale(1.5);}
+
+/* phone: stack photo above the data so values stop breaking mid-word */
+@media (max-width:560px){
+  .ds-inner,.ds-inner.reverse{flex-direction:column;min-height:0;}
+  .ds-photo{width:100%;height:300px;}
+  .ds-info{padding:14px;}
+  .ds-key{min-width:96px;}
+  .ds-row{font-size:10px;}
+}
 </style>
 </head>
 <body>
@@ -218,13 +231,13 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 
       <!-- BRIDE CARD -->
       <div class="ds-card bride" style="overflow:hidden;">
-        <div style="display:flex;min-height:360px;">
+        <div class="ds-inner">
           <!-- Photo -->
-          <div style="width:40%;flex-shrink:0;position:relative;background:#000;overflow:hidden;">
+          <div class="ds-photo">
             <img id="ds-m" src="" alt="Dr. Madhura" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;mix-blend-mode:screen;filter:brightness(0.95)contrast(1.05)saturate(1.1);">
           </div>
           <!-- Data -->
-          <div style="flex:1;padding:16px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;">
+          <div class="ds-info">
             <div>
               <div class="ds-tag" style="margin-bottom:5px;">// subject_01 . BRIDE . v1.0</div>
               <div class="ds-name">Dr. Madhura Sudhir</div>
@@ -251,9 +264,13 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
 
       <!-- GROOM CARD -->
       <div class="ds-card groom" style="overflow:hidden;">
-        <div style="display:flex;min-height:360px;">
+        <div class="ds-inner">
+          <!-- Photo -->
+          <div class="ds-photo">
+            <img id="ds-y" src="" alt="Dr. Yuvarajendra" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;mix-blend-mode:screen;filter:brightness(0.95)contrast(1.05)saturate(1.1);">
+          </div>
           <!-- Data -->
-          <div style="flex:1;padding:16px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;">
+          <div class="ds-info">
             <div>
               <div class="ds-tag" style="margin-bottom:5px;">// subject_02 . GROOM . v1.0</div>
               <div class="ds-name">Dr. Yuvarajendra Reddy</div>
@@ -274,10 +291,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
               <span class="chip neon">parallel_processing</span><span class="chip gold">cross_fit</span><span class="chip pink">main_character</span>
               <span class="chip pink">turbulence</span><span class="chip gold">caffeine</span><span class="chip neon">fluid_equations</span>
             </div>
-          </div>
-          <!-- Photo -->
-          <div style="width:40%;flex-shrink:0;position:relative;background:#000;overflow:hidden;">
-            <img id="ds-y" src="" alt="Dr. Yuvarajendra" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;mix-blend-mode:screen;filter:brightness(0.95)contrast(1.05)saturate(1.1);">
           </div>
         </div>
       </div>
@@ -571,9 +584,12 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     var activeBird = spawnBird(currentQuestionIdx);
 
     function spawnBird(qi) {
+      // Dino is 42px tall; keep birds (and their hanging banners) well above 2x that.
+      // Banner hangs ~26px below bird.y, so anchor the bird body high enough that
+      // even the banner bottom stays above the 2x-dino line (GY - 84).
       return {
         x: W + 120,
-        y: GY - 63 - Math.random() * 55,
+        y: GY - 130 + Math.random() * 24,  // body 40-64px from top: banner clears the hits/misses counter, still above the dino
         w: 52,
         h: 22,
         label: QUESTIONS[qi].label,
@@ -600,25 +616,30 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
     canvas.addEventListener('touchend', function(e) { e.preventDefault(); jump(); }, {passive: false});
     document.addEventListener('keydown', function(e) { if (e.code === 'Space') { e.preventDefault(); jump(); } });
 
+    // Real Chrome dino sprite (extracted from Chromium, tinted gold). 3 frames: stand, run1, run2.
+    var dinoImg = new Image();
+    dinoImg.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAABWCAYAAADxEBthAAACRElEQVR4nO3d4Y3TUBCFURZRHLUgUQ0StdAd/CYrEplx/N6XPaeArH03N5ORE+ftU8yvH99+r/z7X7//fFv596fkN7Nbfp9XHQgwp8AQpsAQtv0+snrneGT3nU5+M7vnZwJD2JfVBzB1+wq++yvmbuQ3szo/ExjCFBjCFBjC8juwnW1GfjOr8zOBIUyBIUyBIUyBIUyBIUyBIUyBIUyBIUyBIUyBIUyBISz/Weijdr8DxO7kN3N2fiYwhCkwhCkwhG2/z6z+vmV955PfzO75mcAQpsAQpsAQ9nb7Hn/1znL2zvHs85HfjPxmTGAIU2AIU2AIW/ZZ6NXX1+rkN/Mq+ZnAEKbAEKbAEPbuOvCt6XWs3XeNZ5+f/O6T3+z8TGAIU2AIU2AIe3gd+OhnVXfbOW6P9+rjk9+M/O4zgSFMgSFMgSHs4XXguqu/z/pq5Dfj+8DAPykwhCkwhCkwhCkwhCkwhCkwhL27RvVq1+Wuvs+w/Gbkd4wJDGHL7kr5LKvv7F8nv5mr8zOBIezhq0VtJ9ltgshvRn73mcAQpsAQpsAQdvj9+m47yW472yPym5Hf30xgCFNgCFNgCBu/f796J1m9c5xNfjMfPT8TGMIUGMIUGMJOfz9/dCc5+tsxu+0gZ5vm97+P9yq5Tp8/teefCQxhCgxhCgxhl+/AR3eIo78PW1fbwXZ39k68W/4mMIQpMIQpMIQ9/a6Uu+0MNfKbefX8TGAIU2AIU2AIy10Hnj7e7j7a+e5u9/+HCQxhCgxhCgxhfwCEtRNx7MIiEQAAAABJRU5ErkJggg==";
+    var DINO_FRAME_W = 80, DINO_FRAME_H = 86;
     function drawDino(x, y, frame) {
-      var GOLD = '#b8936a';
-      ctx.fillStyle = GOLD;
-      ctx.fillRect(x + 8, y + 8, 18, 20);
-      ctx.fillRect(x + 14, y, 14, 14);
-      ctx.fillStyle = '#0a0a0a';
-      ctx.fillRect(x + 22, y + 3, 3, 3);
-      ctx.fillStyle = GOLD;
-      ctx.fillRect(x + 24, y + 9, 5, 2);
-      ctx.fillRect(x, y + 18, 10, 6);
-      ctx.fillRect(x + 2, y + 22, 6, 5);
-      if (frame % 2 === 0) {
-        ctx.fillRect(x + 10, y + 28, 6, 12);
-        ctx.fillRect(x + 20, y + 28, 6, 8);
+      // hitbox is dino.w x dino.h (32x42); draw sprite scaled to roughly match,
+      // anchored so feet sit on the same baseline as the old drawing (y + 44).
+      var dw = 38, dh = (DINO_FRAME_H / DINO_FRAME_W) * dw; // keep aspect ~ 0.93
+      var drawX = x - 3;
+      var drawY = (y + 42) - dh; // caller passes top of 42px box; feet baseline is y+42
+      var fi;
+      if (dino.jumping) {
+        fi = 0;                 // standing pose while airborne
       } else {
-        ctx.fillRect(x + 10, y + 28, 6, 8);
-        ctx.fillRect(x + 20, y + 28, 6, 12);
+        fi = (frame % 2 === 0) ? 1 : 2; // alternate run frames
       }
-      ctx.fillRect(x + 22, y + 12, 8, 4);
+      if (dinoImg.complete && dinoImg.naturalWidth) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(dinoImg, fi * DINO_FRAME_W, 0, DINO_FRAME_W, DINO_FRAME_H, drawX, drawY, dw, dh);
+      } else {
+        // fallback block until image loads
+        ctx.fillStyle = '#b8936a';
+        ctx.fillRect(x + 8, y + 8, 18, 28);
+      }
     }
 
     function drawBird(bird) {
@@ -724,8 +745,8 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       titleEl.textContent = q.title;
       if (q.isPhoto) {
         bodyEl.innerHTML = '<div class="popup-who-photos">' +
-          '<div class="popup-who-photo"><img src="' + MSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:"Playfair Display",serif;letter-spacing:1px;">Madhura</div></div>' +
-          '<div class="popup-who-photo"><img src="' + YSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:"Playfair Display",serif;letter-spacing:1px;">Yuvarajendra</div></div>' +
+          '<div class="popup-who-photo"><img src="' + MSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:Playfair Display,serif;letter-spacing:1px;">Madhura</div></div>' +
+          '<div class="popup-who-photo"><img src="' + YSRC + '"><div class="popup-who-label" style="color:var(--gold);font-size:12px;font-family:Playfair Display,serif;letter-spacing:1px;">Yuvarajendra</div></div>' +
           '</div>';
       } else {
         bodyEl.innerHTML = q.body;
