@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dr. Madhura x Dr. Yuvarajendra</title>
+
+<!-- ============================================================= -->
+<!-- LINK PREVIEW (Open Graph + Twitter Card)                       -->
+<!-- IMPORTANT: replace USERNAME and REPO below with your actual    -->
+<!-- GitHub Pages values, in all three URLs. They MUST be full      -->
+<!-- https:// links to publicly reachable files (not relative).     -->
+<!-- Example base: https://USERNAME.github.io/REPO/                 -->
+<!-- Also commit og_preview.png to the same folder as this file.    -->
+<!-- ============================================================= -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Engagement Invite — Madhura &amp; Yuvarajendra">
+<meta property="og:description" content="Run through the dino game to reveal the invite. 17 June 2026 · Nandi Hills.">
+<meta property="og:url" content="https://USERNAME.github.io/REPO/">
+<meta property="og:image" content="https://USERNAME.github.io/REPO/og_preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Engagement Invite — Madhura & Yuvarajendra">
+<meta property="og:site_name" content="Madhura &amp; Yuvarajendra">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Engagement Invite — Madhura &amp; Yuvarajendra">
+<meta name="twitter:description" content="Run through the dino game to reveal the invite. 17 June 2026 · Nandi Hills.">
+<meta name="twitter:image" content="https://USERNAME.github.io/REPO/og_preview.png">
+
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="Engagement Invite — Madhura & Yuvarajendra. 17 June 2026, Amita Rasa, Nandi Hills.">
+<!-- ============================================================= -->
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#b8936a;--gold-light:#d4b896;--cream:#f5f0e8;--neon:#00ff88;--pink:#e080a0;--blue:#80a8e0;--purple:#b080d0;--ink:#0a0a0a;--terminal:#0d1117;--border:#1e2530;}
@@ -667,7 +695,15 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
         ctx.fillRect(x + 10, y + 18, 12, 4);
       }
       var labelW = Math.max(76, bird.label.length * 9 + 16);
-      var bx = x - labelW, by = y - 2;
+      // bird flies left, so the banner trails BEHIND it (to the right)
+      var bx = x + bird.w + 10, by = y - 2;
+      // connector line from bird tail to banner
+      ctx.strokeStyle = 'rgba(184,147,106,0.4)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(x + bird.w, y + 8);
+      ctx.lineTo(bx, by + 13);
+      ctx.stroke();
       ctx.fillStyle = 'rgba(13,17,23,0.95)';
       ctx.strokeStyle = GOLD;
       ctx.lineWidth = 1.5;
@@ -680,12 +716,6 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(bird.label, bx + labelW/2, by + 13);
-      ctx.strokeStyle = 'rgba(184,147,106,0.4)';
-      ctx.lineWidth = 0.8;
-      ctx.beginPath();
-      ctx.moveTo(bx + 66, by + 13);
-      ctx.lineTo(x + 14, y + 8);
-      ctx.stroke();
     }
 
     // Draw a subtle "missed - coming again!" hint arrow on the right edge
@@ -823,17 +853,30 @@ body{font-family:'DM Sans',sans-serif;background:#000;color:var(--cream);}
           activeBird.frameTimer++;
           if (activeBird.frameTimer > 10) { activeBird.frame++; activeBird.frameTimer = 0; }
 
-          // If bird flies off-screen without being hit, respawn it
-          if (activeBird.x + activeBird.w + 50 < 0) {
+          // Only a miss once the WHOLE group (bird + trailing banner) is off-screen left
+          var trailW = activeBird.w + 10 + Math.max(76, activeBird.label.length * 9 + 16);
+          if (activeBird.x + trailW < 0) {
             misses++;
             activeBird = spawnBird(currentQuestionIdx);
           }
 
-          // Collision with dino
-          if (dino.x + 28 > activeBird.x + 4 &&
-              dino.x + 4 < activeBird.x + activeBird.w + 40 &&
-              dino.y > activeBird.y - 4 &&
-              dino.y < activeBird.y + activeBird.h + 30) {
+          // Collision: dino box vs the FULL bird+banner footprint.
+          // Bird flies left with the banner trailing to its right, so the whole
+          // group spans from the bird's left edge to the banner's right edge.
+          var labelW = Math.max(76, activeBird.label.length * 9 + 16);
+          var groupLeft  = activeBird.x + 4;
+          var groupRight = activeBird.x + activeBird.w + 10 + labelW;
+          var groupTop   = activeBird.y - 4;            // banner top is y-2; small margin
+          var groupBottom= activeBird.y + activeBird.h + 4;
+
+          // Dino sprite box (drawn from dino.x-3, width ~38; feet at dino.y, head ~41px up)
+          var dLeft   = dino.x - 1;
+          var dRight  = dino.x + 35;
+          var dTop    = dino.y - 41;
+          var dBottom = dino.y;
+
+          if (dLeft < groupRight && dRight > groupLeft &&
+              dTop < groupBottom && dBottom > groupTop) {
             activeBird.hit = true;
             hits++;
             currentQuestionIdx++;
